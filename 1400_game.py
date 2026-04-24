@@ -100,9 +100,30 @@ def describe_area(player):
         Type 'q' to quit.
     """)
 
+def get_choice(valid_options):
+    while True:
+        try:
+            choice = int(input("Enter your choice: "))
+            if choice in valid_options:
+                return choice
+            else:
+                print("Please choose a valid option.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
 def explore_the_dark_woods(player):
-    print(f"{player.name}! , you step into the dark woods....")
-    player.add_to_inventory("Lantern")
+    print("""
+    You enter the dark woods...
+        1. Search the dense trees
+        2. Search the creek bed
+    """)
+    choice = get_choice([1, 2])
+    if choice == 1:
+        print(f"{player.name} you spot a broken and rusty blade driven into the trunk of an ancient elm tree.")
+        player.add_to_inventory("Broken Blade")
+    elif choice == 2:
+        print(f"{player.name} you find yourself exploring the creek bed but slip on a rock and roll your ankle.")
+        player.take_damage(10)
 
 def explore_the_mountain_pass(player):
     print(f"{player.name}! You step into the mountain pass....")
