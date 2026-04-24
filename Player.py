@@ -7,6 +7,7 @@ class Player:
         self.name = "" 
         self.inventory = []
         self.health = 100
+        self.game_over = False
 
     def set_name(self, name):
         #encapsulation allows us to evaluate what the user uses for name

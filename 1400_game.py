@@ -1,65 +1,73 @@
 
+import random
+
 from Player import Player
 
 def main():
-    welcome_player()
-    player = Player()
-    player.ask_player_name()
-    player.add_to_inventory("Ancient Scroll")
-
-    print(f"Welcome, {player.name}! Your journey begins now.")
-
-
     while True:
-        
-        describe_area(player)
+        welcome_player()
+        player = Player()
+        player.game_over = False
+        player.ask_player_name()
+        player.add_to_inventory("Ancient Scroll")
 
-        decision = input(" What will you do (1, 2, 3, r, i, q (quit)):").lower()
+        print(f"Welcome, {player.name}! Your journey begins now.")
 
 
-        match decision:
-            case "1":
-                explore_the_dark_woods(player)
-
-            case "2":
-                explore_the_mountain_pass(player)
+        while True:
             
-            case "3":
-                explore_the_dark_cave(player)
+            describe_area(player)
 
-            case "4":
-                if player.is_item_in_inventory("Map"):
-                    explore_the_hidden_valley(player)
-                else:
-                    print("Confused, you stand still, unsure of what to do.")
-            
-            case "i":
-                print(f"{player.name}! This is your inventory")
-                print(player.inventory)
+            decision = input(" What will you do (1, 2, 3, r, i, q (quit)):").lower()
 
-            case "r":
-                print(f"{player.name}! You read the Ancient Scroll")
-                print("""
-                In a forest dark and deep, the blade resides in elms tight keep.
-                On a mountain high and steep, the pommel is hidden where wise ones sleep.
-                In a cave where darkness dwells, avoid the path that reeks and smells.
-                In a valley hidden well, the forge lies behind where blue waters fell.
+
+            match decision:
+                case "1":
+                    explore_the_dark_woods(player)
+
+                case "2":
+                    explore_the_mountain_pass(player)
                 
-                Forge the Hero's Sword pure and true, and the light of good shall see you through.
-                """)
+                case "3":
+                    explore_the_dark_cave(player)
 
-            case "q":
-                print(f"{player.name}! Thanks for playing")
+                case "4":
+                    if player.is_item_in_inventory("Map"):
+                        explore_the_hidden_valley(player)
+                    else:
+                        print("Confused, you stand still, unsure of what to do.")
+                
+                case "i":
+                    print(f"{player.name}! This is your inventory")
+                    print(player.inventory)
+
+                case "r":
+                    print(f"{player.name}! You read the Ancient Scroll")
+                    print("""
+                    In a forest dark and deep, the blade resides in elms tight keep.
+                    On a mountain high and steep, the pommel is hidden where wise ones sleep.
+                    In a cave where darkness dwells, avoid the path that reeks and smells.
+                    In a valley hidden well, the forge lies behind where blue waters fell.
+                    
+                    Forge the Hero's Sword pure and true, and the light of good shall see you through.
+                    """)
+
+                case "q":
+                    print(f"{player.name}! Thanks for playing")
+                    break
+
+                case _:
+                    print("Confused, you stand still, unsure of what to do.")
+
+            if player.game_over:
                 break
-
-            case _:
-                print("Confused, you stand still, unsure of what to do.")
-
-
-        print("")
-        if check_win(player) or check_dead(player):
-            break
-
+        
+        if player.game_over:
+            answer = input("\nWould you like to play again? (y/n): ").lower()
+            if answer != "y":
+                print("Thanks for playing!")
+                break
+        
 def welcome_player():
     print("""
     Welcome adventurer, my name is Brenden. I'm the mayor of the township of Ogden. 
@@ -116,7 +124,7 @@ def get_choice(valid_options):
 def explore_the_dark_woods(player):
     while True:
         print("""
-        You enter the dark woods... You a dense thicket of trees and a shallow creek bed. 
+        You enter the dark woods... You see a dense thicket of trees and a shallow creek bed. 
         1. Search the dense trees
         2. Search the creek bed
         """)
@@ -176,28 +184,111 @@ def explore_the_hidden_valley(player):
         if choice == 1:
             print(f"{player.name}, you find a path that leads to a forge behind the waterfall.There is a blacksmith here who offers to forge the Hero's Sword for you if you have the Broken Blade, Golden Pommel, and Magic Gem.")
             if player.is_item_in_inventory("Broken Blade") and player.is_item_in_inventory("Golden Pommel") and player.is_item_in_inventory("Hero's Gem"):
-                print(f"The Blacksmith takes the broken pieces of the Hero's Sword and leaves for a short while.")
-                print(f"The Blacksmith returns and gives you the newly forged Hero's Sword! You are now ready to face the evil Ogre!")
+                print(f"\nThe Blacksmith takes the broken pieces of the Hero's Sword and leaves for a short while.")
+                print(f"When he returns and he gives you the newly forged Hero's Sword! You are now ready to face the evil Ogre!")
+                print(f"He says to you, '{player.name} the Ogre resides in the Dark Fort deeper in the valley. Be careful, he's a tough one!'")
                 player.add_to_inventory("Hero's Sword")
             break
         elif choice == 2:
-            print(f"{player.name} as you head deeper into the valley, you are ambushed by the ogres soldiers. You narrowly escape but not without injury.")
-            player.take_damage(10)
+            if player.is_item_in_inventory("Hero's Sword"):
+                print(f"{player.name}, you draw the Hero's Sword and cut through the ogre's guards who guard the path deeper into the valley. ")
+                explore_the_valley_basin(player)
+                break
+            else:
+                print(f"{player.name}, you are ambushed by the ogre's soldiers. You narrowly escape but not without injury.")
+                player.take_damage(10)
+                break
+
+
+def explore_the_valley_basin(player):
+    while True:
+        print("""
+        You enter the valley basin... You see the Dark Fort in the distance. You also see an overgrown path leading to a small hut.  
+        1. Head to the Dark Fort for the final battle with the Ogre.
+        2. Head down the overgrown path to the small hut. 
+        """)
+        choice = get_choice([1, 2])
+        if choice == 1:
+            explore_the_dark_fort(player)
+            break
+        elif choice == 2:
+            explore_the_witches_hut(player)
             break
 
-def check_win(player):
-    if player.is_item_in_inventory("Treasure") and player.is_item_in_inventory("Rare Herbs"):
-        print(f"{player.name}, you have won! Congrats")
-        return True
-    else:
-        return False
+def explore_the_witches_hut(player):
+    print(f"{player.name}, you head down the overgrown path and find a small hut. You knock on the door and an old witch answers.")
+    print(f"The witch says to you, {player.name} I can heal your wounds if you can beat me in a game of chance.")
+    print("""
+        Choose a potion adventurer...
+          
+        1. Red Potion
+        2. Blue Potion
+    """)
 
-def check_dead(player):
-    if player.health <= 0:
-        print(f"{player.name} has died!")
-        return True
+    winning_potion = random.randint(1, 2)
+    choice = get_choice([1, 2])
+    if choice == winning_potion:
+        print(f"The witch cackles. 'Lucky you! Drink up!'")
+        player.health = 100
+        print(f"{player.name} your health has been restored to 100!")
+        explore_the_valley_basin(player)
     else:
-        return False
+        print(f"The witch cackles. 'Wrong choice! Now face your DOOM!'")
+        print(f"Everything goes dark. As you regain consciousness, you find yourself in front of the Dark Fort.\nThere is no going back now.")
+        player.take_damage(10)
+        explore_the_dark_fort(player)
+
+
+def explore_the_dark_fort(player):
+    if not player.is_item_in_inventory("Hero's Sword"):
+        print(f"\nENDING: DEFEATED")
+        print(f"{player.name}, you enter the Dark Fort without a weapon. The ogre destroys you instantly.")
+        return
+
+    print(f"\n{player.name}, you enter the dark fort and are immediately confronted by the evil ogre. The ogre is huge and wields a giant club.")
+    print(f"You draw the Hero's Sword and prepare for battle...")
+    
+    ogre_damage = 0
+    
+    while True:
+        print(f"\n{player.name}'s health: {player.health}")
+        print(f"Damage dealt to ogre: {ogre_damage}/6")
+        print("""
+        1. SWING THE SWORD WITH ALL YOUR MIGHT!
+        2. Cower in fear and await your demise.
+        """)
+        choice = get_choice([1, 2])
+        if choice == 1:
+            roll = random.randint(2, 6)
+            ogre_damage += roll
+            print(f"You strike the ogre for {roll} damage!")
+            player.take_damage(30)
+
+            if ogre_damage >= 6:
+                print(f"\nENDING: VICTORIOUS")
+                print(f"The ogre is defeated! You have saved the township of Ogden!")
+                player.game_over = True
+                return
+            
+            if player.health <= 0:
+                outcome = random.randint(1, 6)
+                if outcome == 1:
+                    print(f"\nENDING: ESCAPED")
+                    print(f"{player.name}, you narrowly escape with your life!")
+                else:
+                    print(f"\nENDING: DEFEATED")
+                    print(f"{player.name} has been slain by the ogre!")
+                player.game_over = True
+                return
+            
+        elif choice == 2:
+            print(f"{player.name} cowers in fear. The ogre takes a free swing!")
+            player.take_damage(30)
+            if player.health <= 0:
+                print(f"\nENDING: DEFEATED")
+                print(f"{player.name} has been slain by the ogre!")
+                player.game_over = True
+                return
 
 main()
 
