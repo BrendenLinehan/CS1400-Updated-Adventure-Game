@@ -203,18 +203,27 @@ def explore_the_hidden_valley(player):
 def explore_the_valley_basin(player):
     while True:
         print("""
-        You enter the valley basin... You see the Dark Fort in the distance. You also see an overgrown path leading to a small hut.  
+        You enter the valley basin... You see the Dark Fort in the distance.
+                
         1. Head to the Dark Fort for the final battle with the Ogre.
-        2. Head down the overgrown path to the small hut. 
         """)
-        choice = get_choice([1, 2])
+        if player.health < 100:
+            print("        You also see an overgrown path leading to a small hut.")
+            print("        It looks less traveled, but may hold something to heal your wounds.\n")
+            print("        2. Head down the overgrown path to the small hut.")
+        
+        if player.health < 100:
+            choice = get_choice([1, 2])
+        else:
+            choice = get_choice([1])
+        
         if choice == 1:
             explore_the_dark_fort(player)
             break
         elif choice == 2:
             explore_the_witches_hut(player)
             break
-
+    
 def explore_the_witches_hut(player):
     print(f"{player.name}, you head down the overgrown path and find a small hut. You knock on the door and an old witch answers.")
     print(f"The witch says to you, {player.name} I can heal your wounds if you can beat me in a game of chance.")
@@ -245,7 +254,7 @@ def explore_the_dark_fort(player):
         print(f"{player.name}, you enter the Dark Fort without a weapon. The ogre destroys you instantly.")
         return
 
-    print(f"\n{player.name}, you enter the dark fort and are immediately confronted by the evil ogre. The ogre is huge and wields a giant club.")
+    print(f"\n{player.name}, you enter the dark fort and are immediately confronted by the evil ogre. The ogre wields a giant club.")
     print(f"You draw the Hero's Sword and prepare for battle...")
     
     ogre_damage = 0
@@ -260,24 +269,25 @@ def explore_the_dark_fort(player):
         choice = get_choice([1, 2])
         if choice == 1:
             roll = random.randint(2, 6)
+            player.take_damage(30)
             ogre_damage += roll
             print(f"You strike the ogre for {roll} damage!")
-            player.take_damage(30)
-
-            if ogre_damage >= 6:
-                print(f"\nENDING: VICTORIOUS")
-                print(f"The ogre is defeated! You have saved the township of Ogden!")
-                player.game_over = True
-                return
+            
             
             if player.health <= 0:
                 outcome = random.randint(1, 6)
-                if outcome == 1:
+                if outcome == 1 or outcome == 2:
                     print(f"\nENDING: ESCAPED")
                     print(f"{player.name}, you narrowly escape with your life!")
                 else:
                     print(f"\nENDING: DEFEATED")
                     print(f"{player.name} has been slain by the ogre!")
+                player.game_over = True
+                return
+
+            if ogre_damage >= 6:
+                print(f"\nENDING: VICTORIOUS")
+                print(f"The ogre is defeated! You have saved the township of Ogden!")
                 player.game_over = True
                 return
             
